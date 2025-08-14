@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Feather Icons -->
+    <script src="https://unpkg.com/feather-icons"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-7 col-lg-5">
+                <div class="card shadow-lg rounded-4 p-4">
+                    <h2 class="text-center mb-4">URL Shortener</h2>
+
+                    <!-- Form -->
+                    <form id="shortenForm" method="POST">
+                        <div class="input-container mb-3 d-flex">
+                            <input type="url" class="form-control" placeholder="Enter your long URL" name="long_url" id="longUrl" required>
+                            <button type="button" class="btn btn-outline-secondary ms-2" id="clearBtn" title="Clear">✕</button>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Shorten URL</button>
+                    </form>
+
+                    <!-- Result -->
+                    <div class="mt-4 align-items-center gap-2" id="result">
+                        <a href="#" target="_blank" id="shortUrlLink" class="short-url-link text-truncate"></a>
+                        <button id="copyBtn" class="btn btn-outline-secondary btn-sm p-1" title="Copy">
+                            <i data-feather="copy"></i>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const clearBtn = document.getElementById('clearBtn');
+        const longUrlInput = document.getElementById('longUrl');
+        const resultDiv = document.getElementById('result');
+        const shortUrlLink = document.getElementById('shortUrlLink');
+        const copyBtn = document.getElementById('copyBtn');
+
+        // Hide result initially
+        resultDiv.style.display = 'none';
+
+        // Clear input
+        clearBtn.addEventListener('click', () => {
+            longUrlInput.value = '';
+            resultDiv.style.display = 'none';
+        });
+
+        // Form submit
+        const form = document.getElementById('shortenForm');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const longUrl = longUrlInput.value;
+            if (!longUrl) return;
+
+            try {
+                const response = await fetch('/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ long_url: longUrl })
+                });
+                const data = await response.json();
+
+                shortUrlLink.href = data.short_url;
+                shortUrlLink.textContent = data.short_url;
+                resultDiv.style.display = 'flex';
+            } catch (err) {
+                console.error('Error shortening URL:', err);
+            }
+        });
+
+        // Copy to clipboard
+        copyBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(shortUrlLink.href)
+                .then(() => {
+                    copyBtn.innerHTML = '<i data-feather="check"></i>';
+                    feather.replace();
+                    setTimeout(() => {
+                        copyBtn.innerHTML = '<i data-feather="copy"></i>';
+                        feather.replace();
+                    }, 1500);
+                });
+        });
+
+        // Load icons
+        feather.replace();
+    </script>
+</body>
+</html>

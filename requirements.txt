@@ -1,0 +1,5 @@
+Flask==2.3.2
+Flask
+Flask-SQLAlchemy
+validators
+flask_sqlalchemy
